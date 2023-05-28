@@ -29,17 +29,38 @@ app.post("/generate-password", async (req, res) => {
     return;
   }
 
+  // Check if the username or email already exists in the database.
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { username: req.body.username },
+        { email: req.body.email }
+      ]
+    },
+  });
+
+  if (existingUser) {
+    if (existingUser.username === req.body.username) {
+      res.status(409).send("Username already in use.");
+    } else if (existingUser.email === req.body.email) {
+      res.status(409).send("Email address already in use.");
+    }
+    return;
+  }
+
   // Generate a unique password.
-  const password = crypto.randomBytes(16).toString("hex");
+  const password = crypto.randomBytes(3).toString("hex");
 
   // Save the password in the database.
   const hashedPassword = await bcrypt.hash(password, 10); // Hash the password with bcrypt
+  const isAuthorized = req.body.isAuthorized; // Assuming the checkbox value is passed in the request body
 
   await prisma.user.create({
     data: {
       username: req.body.username,
       email: req.body.email,
-      password: hashedPassword, // Save the hashed password in the database
+      password: hashedPassword,
+      role: isAuthorized ? "authorized" : "normal", // Set the role based on the authorization status
     },
   });
 
@@ -53,16 +74,15 @@ app.post("/generate-password", async (req, res) => {
       pass: "vgqdokjmkadutkah",
     },
   });
-
+  const user = req.body.username; 
   await transporter.sendMail({
     from: "pandeysuryodaya@gmail.com",
     to: req.body.email,
     subject: "Your unique password",
-    text: `Your unique password is: ${password}`,
+    text: `hello ${user}!! Your unique password is: ${password}`,
   });
 
-  //Redirect the user to the login page.
-  res.redirect("/login");
+  res.status(201).send("User registered successfully.");
 });
 
 const secretKey = crypto.randomBytes(32).toString("hex");
@@ -98,6 +118,5 @@ app.post("/login", async (req, res) => {
 
   // Login the user and redirect them to the home page.
   req.session.user = user;
-  // res.redirect("/");
-  res.send("user verified")
+  res.status(200).send("User logged in successfully.");
 });
