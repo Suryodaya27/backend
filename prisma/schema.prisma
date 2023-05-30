@@ -15,3 +15,10 @@ model User {
   role String
 }
 
+model Bank {
+  id        String  @id @default(uuid())
+  bank_name String  @unique
+  bank_url  String
+}
+
+
