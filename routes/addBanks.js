@@ -7,12 +7,12 @@ const router = express.Router();
 
 router.post("/", async (req, res) => {
     try {
-      const { bank_name, bank_url } = req.body;
+      const { bank_name} = req.body;
       
       // Check if the bank already exists
       const existingBank = await prisma.bank.findFirst({
         where: {
-          bank_name,
+          bank_name
         },
       });
   
@@ -23,8 +23,7 @@ router.post("/", async (req, res) => {
       // Create a new bank record in the database
       const bank = await prisma.bank.create({
         data: {
-          bank_name,
-          bank_url,
+          bank_name
         },
       });
   

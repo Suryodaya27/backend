@@ -15,10 +15,27 @@ model User {
   role String
 }
 
-model Bank {
-  id        String  @id @default(uuid())
-  bank_name String  @unique
-  bank_url  String
+model Loan {
+  id        Int       @id @default(autoincrement())
+  typeId    Int
+  bankId    Int
+  amount    Float
+  interest  Float
+  duration  Int
+  // other fields
+
+  loanType  LoanType  @relation(fields: [typeId], references: [id])
+  bank      Bank      @relation(fields: [bankId], references: [id])
 }
 
+model LoanType {
+  id      Int    @id @default(autoincrement())
+  loan_name    String     @unique
+  loans   Loan[]
+}
 
+model Bank {
+  id      Int    @id @default(autoincrement())
+  bank_name    String     @unique
+  loans   Loan[]
+}
