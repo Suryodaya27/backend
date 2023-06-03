@@ -2,19 +2,24 @@ const express = require('express');
 const crypto = require("crypto");
 const bcrypt = require("bcrypt");
 const session = require("express-session");
+const jwt = require('jsonwebtoken');
 
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const router = express.Router();
 
-const secretKey = crypto.randomBytes(32).toString("hex");
+// const secretKey = crypto.randomBytes(32).toString("hex");
+const secretKey = require('../config')
 
 router.use(
   session({
     secret: secretKey,
     resave: false,
     saveUninitialized: false,
+    cookie: {
+      secure: true, // Set secure flag to true
+    },
   })
 );
 
@@ -42,7 +47,8 @@ router.post("/", async (req, res) => {
   // Login the user and redirect them to the home page.
   req.session.user = user;
   const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
-  res.status(200).send("User logged in successfully.");
+
+  res.status(200).send("User logged in successfully. ");
 });
 
 module.exports = router;

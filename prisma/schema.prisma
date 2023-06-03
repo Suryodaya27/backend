@@ -1,22 +1,22 @@
-generator client{
-    provider="prisma-client-js"
+generator client {
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "mysql"
-    url = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  email     String   @unique
-  password  String
-  role String
+  id       Int     @id @default(autoincrement())
+  username String  @unique
+  email    String  @unique
+  password String
+  role     String
 }
 
 model Loan {
-  id        Int       @id @default(autoincrement())
+  id        Int        @id @default(autoincrement())
   typeId    Int
   bankId    Int
   amount    Float
@@ -24,18 +24,37 @@ model Loan {
   duration  Int
   // other fields
 
-  loanType  LoanType  @relation(fields: [typeId], references: [id])
-  bank      Bank      @relation(fields: [bankId], references: [id])
+  loanType  LoanType   @relation(fields: [typeId], references: [id])
+  bank      Bank       @relation(fields: [bankId], references: [id])
+  applications Application[]
+}
+
+model Application {
+  id               Int     @id @default(autoincrement())
+  applicationName String
+  applicationGovId String
+  amount           Int
+  loanId           Int
+  duration         Int
+  loan             Loan    @relation(fields: [loanId], references: [id])
+  statuses         Status[]
+}
+
+model Status {
+  id            Int         @id @default(autoincrement())
+  status        String
+  applicationId Int
+  application   Application @relation(fields: [applicationId], references: [id])
 }
 
 model LoanType {
-  id      Int    @id @default(autoincrement())
-  loan_name    String     @unique
-  loans   Loan[]
+  id        Int     @id @default(autoincrement())
+  loanName  String  @unique
+  loans     Loan[]
 }
 
 model Bank {
-  id      Int    @id @default(autoincrement())
-  bank_name    String     @unique
-  loans   Loan[]
+  id        Int     @id @default(autoincrement())
+  bankName  String  @unique
+  loans     Loan[]
 }
