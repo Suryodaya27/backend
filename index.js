@@ -37,6 +37,7 @@ const loantypes = require('./routes/loanTypes');
 const loanBanks = require('./routes/loanBanks');
 const loanInfo = require('./routes/loanInfo');
 const application = require('./routes/application');
+const userInfo = require('./routes/userInfo');
 
 // Use routes as middleware
 app.use('/generate-password', generatePasswordRoute);
@@ -46,3 +47,4 @@ app.use('/loan/types',loantypes);
 app.use('/loan/types' ,loanBanks);
 app.use('/loan/types' ,loanInfo);
 app.use('/loan/types' , application);
+app.use('/' , userInfo);

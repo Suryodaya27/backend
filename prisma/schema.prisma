@@ -13,6 +13,8 @@ model User {
   email    String  @unique
   password String
   role     String
+  applications     Application[]  @relation("userApplications")
+  statuses         Status[]       @relation("userStatuses")
 }
 
 model Loan {
@@ -26,7 +28,7 @@ model Loan {
 
   loanType  LoanType   @relation(fields: [typeId], references: [id])
   bank      Bank       @relation(fields: [bankId], references: [id])
-  applications Application[]
+  applications Application[]   
 }
 
 model Application {
@@ -37,14 +39,18 @@ model Application {
   loanId           Int
   duration         Int
   loan             Loan    @relation(fields: [loanId], references: [id])
+  userId           Int
+  user             User           @relation("userApplications", fields: [userId], references: [id])
   statuses         Status[]
 }
 
 model Status {
   id            Int         @id @default(autoincrement())
   status        String
-  applicationId Int
-  application   Application @relation(fields: [applicationId], references: [id])
+  userId           Int
+  user             User           @relation("userStatuses", fields: [userId], references: [id])
+  applicationId    Int
+  application      Application    @relation(fields: [applicationId], references: [id])
 }
 
 model LoanType {

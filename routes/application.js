@@ -30,7 +30,7 @@ router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) 
   try {
     const { typeId, bankId } = req.params;
     const { amount, interestRate, applicationName, applicationGovId, duration } = req.body;
-
+    const { userId } = req; 
     // Check if the userId is present in the request
     if (!req.userId) {
       res.status(401).json({ error: 'Access denied. User not authenticated.' });
@@ -45,7 +45,8 @@ router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) 
         amount: parseInt(amount),
         duration: parseInt(duration),
         loanId: parseInt(typeId),
-        statuses: { create: { status: 'Pending' } },
+        userId: userId, // Associate the User ID
+        statuses: { create: { status: 'Pending', userId: userId } }, // Associate the User ID
       },
       include: {
         loan: true,
@@ -68,10 +69,7 @@ const updatedStatus = await prisma.status.updateMany({
   data: { status: 'Approved' },
 });
 
-res.json({ application, status: updatedStatus });
-
-
-    res.json({ application, status: createdStatus });
+    res.json({ application, status: updatedStatus });
   } catch (error) {
     console.error('Error submitting loan application:', error);
     res.status(500).json({ error: 'An error occurred while submitting the loan application' });
