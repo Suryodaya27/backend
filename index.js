@@ -12,7 +12,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 app.use(bodyParser.json());
-const port = 3000;
+const port = 3001;
 app.use(cors());
 
 app.use(
@@ -24,6 +24,15 @@ app.use(
   })
 );
 
+const authMiddleware = require('./middlewares/authMiddleware');
+
+// Test route that requires authentication
+app.get('/test', authMiddleware, (req, res) => {
+  res.send('Authentication successful!');
+});
+
+
+
 
 app.listen(port, () => {
   console.log(`Server running at http://localhost:${port}/`);
@@ -32,6 +41,7 @@ app.listen(port, () => {
 // Import routes
 const generatePasswordRoute = require('./routes/generatePassword');
 const loginRoute = require('./routes/login');
+const logoutRoute = require('./routes/logout');
 const addBank = require('./routes/addBanks');
 const loantypes = require('./routes/loanTypes');
 const loanBanks = require('./routes/loanBanks');
@@ -42,6 +52,7 @@ const userInfo = require('./routes/userInfo');
 // Use routes as middleware
 app.use('/generate-password', generatePasswordRoute);
 app.use('/login', loginRoute);
+app.use('/logout', logoutRoute);
 app.use('/addbank' , addBank);
 app.use('/loan/types',loantypes);
 app.use('/loan/types' ,loanBanks);

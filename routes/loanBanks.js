@@ -17,6 +17,7 @@ router.get('/:typeId/banks', async (req, res) => {
     });
     const banks = loans.map((loan) => loan.bank);
     res.json(banks);
+
   } catch (error) {
     console.error('Error fetching banks for loan type:', error);
     res.status(500).json({ error: 'An error occurred while fetching banks' });

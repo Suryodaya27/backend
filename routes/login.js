@@ -1,16 +1,14 @@
 const express = require('express');
-const crypto = require("crypto");
-const bcrypt = require("bcrypt");
-const session = require("express-session");
+const bcrypt = require('bcrypt');
+const session = require('express-session');
 const jwt = require('jsonwebtoken');
 
-const { PrismaClient } = require("@prisma/client");
+const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
 const router = express.Router();
 
-// const secretKey = crypto.randomBytes(32).toString("hex");
-const secretKey = require('../config')
+const secretKey = require('../config');
 
 router.use(
   session({
@@ -23,10 +21,10 @@ router.use(
   })
 );
 
-router.post("/", async (req, res) => {
+router.post('/', async (req, res) => {
   // Validate the user's input.
   if (!req.body.username || !req.body.password) {
-    res.status(400).send("Please provide a valid username and password.");
+    res.status(400).send('Please provide a valid username and password.');
     return;
   }
 
@@ -36,19 +34,20 @@ router.post("/", async (req, res) => {
       username: req.body.username,
     },
   });
-  
 
   // If the user doesn't exist or the password is incorrect, return an error.
   if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-    res.status(401).send("Invalid username or password.");
+    res.status(401).send('Invalid username or password.');
     return;
   }
 
-  // Login the user and redirect them to the home page.
+  // Login the user and set the session variables.
   req.session.user = user;
   const token = jwt.sign({ userId: user.id }, secretKey, { expiresIn: '1h' });
 
-  res.status(200).send("User logged in successfully. ");
+  // Send the token as a response to the frontend
+  res.status(200).json({ token: token });
+  // res.status(200).send("login sucessful");
 });
 
 module.exports = router;
