@@ -1,10 +1,11 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
+const verifyToken = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.get('/users/:userId/loans', async (req, res) => {
+router.get('/users/:userId/loans', verifyToken, async (req, res) => {
   try {
     const { userId } = req.params;
 
@@ -24,13 +25,22 @@ router.get('/users/:userId/loans', async (req, res) => {
         loan: {
           include: {
             bank: true,
-            loanType:true,
+            loanType: true,
           },
         },
       },
     });
 
-    res.status(200).json(loans);
+    // Retrieve the user's DSA commission if user is DSA
+    const dsa = await prisma.dsa.findFirst({
+      where: { dsaId: parseInt(userId) },
+      select: { commission: true },
+    });
+    
+    const commission = dsa ? dsa.commission : 0;
+    
+
+    res.status(200).json({ loans, commission });
   } catch (error) {
     console.error('Error retrieving issued loans:', error);
     res.status(500).json({ error: 'An error occurred while retrieving issued loans' });

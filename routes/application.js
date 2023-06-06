@@ -48,6 +48,7 @@ router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) 
       include: {
         loan: true,
         statuses: true,
+        user: true,
       },
     });
 
@@ -65,6 +66,23 @@ router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) 
       where: { applicationId: application.id },
       data: { status: 'Approved' },
     });
+    if (application.user.role === 'authorized') {
+      const loanAmount = application.amount;
+      const commissionPercentage = loan.commisssion;
+
+      // Calculate the commission
+      const commission = loanAmount * (commissionPercentage / 100);
+
+      // Update the DSA commission in the database
+      await prisma.dsa.update({
+        where: { dsaId: application.user.id },
+        data: {
+          commission: {
+            increment: commission * 0.3, // Increment the commission by 30% of the calculated commission
+          },
+        },
+      });
+    }
 
     res.json({ application, status: updatedStatus });
   } catch (error) {

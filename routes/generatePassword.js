@@ -38,18 +38,36 @@ router.post("/", async (req, res) => {
   // Generate a unique password.
   const password = crypto.randomBytes(3).toString("hex");
 
-  // Save the password in the database.
+  // Save the password and user in the database.
   const hashedPassword = await bcrypt.hash(password, 10); // Hash the password with bcrypt
   const isAuthorized = req.body.isAuthorized; // Assuming the checkbox value is passed in the request body
 
-  await prisma.user.create({
-    data: {
-      username: req.body.username,
-      email: req.body.email,
-      password: hashedPassword,
-      role: isAuthorized ? "authorized" : "normal", // Set the role based on the authorization status
-    },
-  });
+  let newUser;
+
+  if (isAuthorized) {
+    newUser = await prisma.user.create({
+      data: {
+        username: req.body.username,
+        email: req.body.email,
+        password: hashedPassword,
+        role: "authorized", // Set the role as authorized
+        dsa: { // Create the DSA entry
+          create: {
+            commission: 0, // Set the initial commission to 0
+          },
+        },
+      },
+    });
+  } else {
+    newUser = await prisma.user.create({
+      data: {
+        username: req.body.username,
+        email: req.body.email,
+        password: hashedPassword,
+        role: "normal", // Set the role as normal
+      },
+    });
+  }
 
   // Send an email with the unique password to the user.
   const transporter = nodemailer.createTransport({
@@ -66,7 +84,7 @@ router.post("/", async (req, res) => {
     from: "pandeysuryodaya@gmail.com",
     to: req.body.email,
     subject: "Your unique password",
-    text: `hello ${user}!! Your unique password is: ${password}`,
+    text: `Hello ${user}! Your unique password is: ${password}`,
   });
 
   res.status(201).send("User registered successfully.");
