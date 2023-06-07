@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
         role: "authorized", // Set the role as authorized
         dsa: { // Create the DSA entry
           create: {
-            commission: 0, // Set the initial commission to 0
+            totalCommission: 0, // Set the initial commission to 0
           },
         },
       },

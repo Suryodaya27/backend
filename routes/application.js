@@ -4,10 +4,9 @@ const prisma = new PrismaClient();
 const jwt = require('jsonwebtoken');
 const verifyToken = require('../middlewares/authMiddleware');
 const secretKey = require('../config');
-
+const axios = require('axios')
 const router = express.Router();
 
-// POST endpoint for submitting loan application
 // POST endpoint for submitting loan application
 router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) => {
   try {
@@ -43,7 +42,7 @@ router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) 
         duration: parseInt(duration),
         loanId: loan.id, // Use the found loan's ID
         userId: userId, // Associate the User ID
-        statuses: { create: { status: 'Pending', userId: userId } }, // Associate the User ID
+        statuses: { create: { status: 'Pending', userId: userId ,commissionAdded:false} }, // Associate the User ID
       },
       include: {
         loan: true,
@@ -52,39 +51,16 @@ router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) 
       },
     });
 
-    // Call the bank's API to send the loan application data
-    const response = await callBankAPI(application);
+    // Send the loan application data to the bank's API
+    // const response = await axios.post('BANK_API_URL', {
+    //   applicationId: application.id,
+    //   amount: amount,
+    //   interestRate: interestRate,
+    //   // Include any other required data fields for the bank's API
+    // });
 
-    // Update the status based on the response from the bank's API
-    let status = 'Rejected';
-    if (response.status === 'approved') {
-      status = 'Approved';
-    }
 
-    // Update the existing status record in the database
-    const updatedStatus = await prisma.status.updateMany({
-      where: { applicationId: application.id },
-      data: { status: 'Approved' },
-    });
-    if (application.user.role === 'authorized') {
-      const loanAmount = application.amount;
-      const commissionPercentage = loan.commisssion;
-
-      // Calculate the commission
-      const commission = loanAmount * (commissionPercentage / 100);
-
-      // Update the DSA commission in the database
-      await prisma.dsa.update({
-        where: { dsaId: application.user.id },
-        data: {
-          commission: {
-            increment: commission * 0.3, // Increment the commission by 30% of the calculated commission
-          },
-        },
-      });
-    }
-
-    res.json({ application, status: updatedStatus });
+    res.json({ application });
   } catch (error) {
     console.error('Error submitting loan application:', error);
     res.status(500).json({
@@ -92,14 +68,5 @@ router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) 
     });
   }
 });
-
-// Function to call the bank's API and send the loan application data
-async function callBankAPI(application) {
-  // Make the necessary API request to the bank using the application data
-  // Replace this code with the actual implementation to send data to the bank's API
-
-  // For demonstration purposes, returning a mock response
-  return { status: 'approved' };
-}
 
 module.exports = router;

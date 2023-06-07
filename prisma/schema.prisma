@@ -25,7 +25,7 @@ model Loan {
   amount        Float
   interest      Float
   duration      Int
-  commisssion   Float?
+  commission   Float?
   // other fields
 
   loanType      LoanType    @relation(fields: [typeId], references: [id])
@@ -53,6 +53,7 @@ model Status {
   user             User        @relation("userStatuses", fields: [userId], references: [id])
   applicationId    Int
   application      Application @relation(fields: [applicationId], references: [id])
+  commissionAdded Boolean
 }
 
 model LoanType {
@@ -69,6 +70,6 @@ model Bank {
 
 model Dsa {
   dsaId           Int         @id @unique
-  commission      Float
+  totalCommission      Float
   user            User        @relation("userDsa", fields: [dsaId], references: [id])
 }
