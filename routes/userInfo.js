@@ -34,10 +34,10 @@ router.get('/users/:userId/loans', verifyToken, async (req, res) => {
     // Retrieve the user's DSA commission if user is DSA
     const dsa = await prisma.dsa.findFirst({
       where: { dsaId: parseInt(userId) },
-      select: { commission: true },
+      select: { totalCommission: true },
     });
     
-    const commission = dsa ? dsa.commission : 0;
+    const commission = dsa ? dsa.totalCommission  : 0;
     
 
     res.status(200).json({ loans, commission });

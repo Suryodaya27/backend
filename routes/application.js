@@ -47,7 +47,12 @@ router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) 
       include: {
         loan: true,
         statuses: true,
-        user: true,
+        user: {
+          select: {
+            id: true,
+            username: true,
+          },
+        },
       },
     });
 
@@ -60,7 +65,8 @@ router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) 
     // });
 
 
-    res.json({ application });
+    // res.json({ application });
+    res.status(200).json({ application });
   } catch (error) {
     console.error('Error submitting loan application:', error);
     res.status(500).json({

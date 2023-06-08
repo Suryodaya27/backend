@@ -27,7 +27,7 @@ app.use(
 const authMiddleware = require('./middlewares/authMiddleware');
 
 // Test route that requires authentication
-app.get('/test', authMiddleware, (req, res) => {
+module.exports = app.get('/test', authMiddleware, (req, res) => {
   res.send('Authentication successful!');
 });
 

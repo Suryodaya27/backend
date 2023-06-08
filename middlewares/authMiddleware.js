@@ -3,9 +3,11 @@ const secretKey = require('../config');
 
 const verifyToken = (req, res, next) => {
   // Retrieve the token from the request headers
-  // const token = req.headers.authorization;
+   const authorizationHeader = req.headers.authorization;
+   const token = authorizationHeader.replace('Bearer ', '');
+   console.log(token)
   // const token = req.headers['x-auth-token'];
-  const token = require('../tokenGenerator')
+  // const token = require('../tokenGenerator')
   // const token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjMsImlhdCI6MTY4NTk3MDcyNH0.KmMkKkGHeVWHk9xcUKYVGq8qLJAX859zodaMxNhFC0k";
   if (!token) {
     res.status(401).send('Access denied. Token missing.');
