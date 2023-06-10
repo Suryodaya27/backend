@@ -42,7 +42,7 @@ router.post('/:typeId/banks/:bankId/application', verifyToken, async (req, res) 
         duration: parseInt(duration),
         loanId: loan.id, // Use the found loan's ID
         userId: userId, // Associate the User ID
-        statuses: { create: { status: 'Pending', userId: userId ,commissionAdded:false} }, // Associate the User ID
+        statuses: { create: { status: 'Pending',remark:'Application has been sent to bank', userId: userId ,commissionAdded:false} }, // Associate the User ID
       },
       include: {
         loan: true,

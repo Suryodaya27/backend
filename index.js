@@ -47,6 +47,7 @@ const loanInfo = require('./routes/loanInfo');
 const application = require('./routes/application');
 const userInfo = require('./routes/userInfo');
 const webHook = require('./routes/webhook');
+const commissionReq = require('./routes/commissionreq')
 
 // Use routes as middleware
 app.use('/generate-password', generatePasswordRoute);
@@ -57,3 +58,4 @@ app.use('/loan/types' ,loanInfo);
 app.use('/loan/types' , application);
 app.use('/' , userInfo);
 app.use('/webhook' , webHook);
+app.use('/commissionreq' , commissionReq);

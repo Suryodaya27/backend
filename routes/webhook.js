@@ -8,16 +8,16 @@ const router = express.Router();
 // POST endpoint for receiving webhook callbacks from the bank
 router.post('/', async (req, res) => {
   try {
-    const { applicationId, status } = req.body;
+    const { applicationId, status ,remark} = req.body;
 
     // Update the application status in the database based on the webhook data
     const updatedStatus = await prisma.status.updateMany({
       where: { applicationId: parseInt(applicationId) },
-      data: { status },
+      data: { status,remark },
     });
 
     // If the application status is 'Approved', update DSA commission
-    if (status === 'Approved') {
+    if (status === 'Disbursed') {
       const application = await prisma.application.findUnique({
         where: { id: parseInt(applicationId) },
         include: {
@@ -33,14 +33,12 @@ router.post('/', async (req, res) => {
         !application.statuses[0]?.commissionAdded
       ) {
         const loanAmount = application.amount;
-        console.log(loanAmount);
         const commissionPercentage = application.loan.commission;
         // Calculate the commission
         const commission = loanAmount * (commissionPercentage / 100);
     
         // Calculate the increment value
         const increment = commission * 0.3;
-        console.log(increment);
         // Update the DSA commission in the database
         await prisma.dsa.update({
           where: { dsaId: application.user.id },
@@ -48,6 +46,9 @@ router.post('/', async (req, res) => {
             totalCommission: {
               increment: increment, // Increment the commission by the calculated increment value
             },
+            commissionRemaining:{
+              increment: increment,
+            }
           },
         });
     
