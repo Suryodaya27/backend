@@ -1,7 +1,6 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const { PrismaClient } = require('@prisma/client');
-const verifyToken = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 const prisma = new PrismaClient();

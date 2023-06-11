@@ -19,7 +19,7 @@ model User {
 }
 
 model Loan {
-  id         Int    @id @default(autoincrement())
+  id         Int   @id @default(autoincrement())
   typeId     Int
   bankId     Int
   interest   Float
@@ -68,8 +68,11 @@ model Bank {
 }
 
 model Dsa {
-  dsaId               Int   @id @unique
-  totalCommission     Float
-  commissionRemaining Float
-  user                User  @relation("userDsa", fields: [dsaId], references: [id])
+  dsaId                Int   @id @unique
+  totalCommission      Float @default(0)
+  commissionRemaining  Float @default(0)
+  amountLoan           Float @default(0)
+  loansIssued          Int @default(0)
+  commissionPercentage Float @default(0.0)
+  user                 User  @relation("userDsa", fields: [dsaId], references: [id])
 }

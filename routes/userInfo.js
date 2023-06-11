@@ -34,13 +34,21 @@ router.get('/users/:userId/loans', verifyToken, async (req, res) => {
     // Retrieve the user's DSA commission if user is DSA
     const dsa = await prisma.dsa.findFirst({
       where: { dsaId: parseInt(userId) },
-      select: { totalCommission: true },
+      select: { 
+        totalCommission: true ,
+        commissionRemaining:true,
+        amountLoan:true,
+        loansIssued:true,
+      },
     });
     
-    const commission = dsa ? dsa.totalCommission  : 0;
+    const commission = dsa ? dsa.totalCommission  : null;
+    const remainingCommision= dsa ? dsa.commissionRemaining : null;
+    const amountLoan = dsa ? dsa.amountLoan : null;
+    const loansIssued = dsa ? dsa.loansIssued : null;
     
 
-    res.status(200).json({ loans, commission });
+    res.status(200).json({ loans, commission,remainingCommision,amountLoan, loansIssued});
   } catch (error) {
     console.error('Error retrieving issued loans:', error);
     res.status(500).json({ error: 'An error occurred while retrieving issued loans' });

@@ -34,11 +34,15 @@ router.post('/', async (req, res) => {
       ) {
         const loanAmount = application.amount;
         const commissionPercentage = application.loan.commission;
+        const dsa = await prisma.dsa.findUnique({
+          where: { dsaId: application.user.id  },
+        });
+        const dsaCommissionPercentage = dsa.commissionPercentage;
         // Calculate the commission
         const commission = loanAmount * (commissionPercentage / 100);
     
         // Calculate the increment value
-        const increment = commission * 0.3;
+        const increment = commission * (dsaCommissionPercentage/100);
         // Update the DSA commission in the database
         await prisma.dsa.update({
           where: { dsaId: application.user.id },
@@ -46,9 +50,15 @@ router.post('/', async (req, res) => {
             totalCommission: {
               increment: increment, // Increment the commission by the calculated increment value
             },
-            commissionRemaining:{
+            commissionRemaining: {
               increment: increment,
-            }
+            },
+            amountLoan: {
+              increment: loanAmount,
+            },
+            loansIssued: {
+              increment: 1, // Increment the number of loans issued by 1
+            },
           },
         });
     

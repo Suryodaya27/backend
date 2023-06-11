@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE `dsa` ADD COLUMN `commissionPercentage` DOUBLE NOT NULL DEFAULT 0.0,
+    MODIFY `amountLoan` DOUBLE NOT NULL DEFAULT 0,
+    MODIFY `loansIssued` INTEGER NOT NULL DEFAULT 0;
