@@ -9,7 +9,7 @@ const prisma = new PrismaClient();
 
 const router = express.Router();
 
-router.post("/", async (req, res) => {
+router.post("/generate-password", async (req, res) => {
   // Validate the user's input.
   if (!req.body.username || !req.body.email) {
     res.status(400).send("Please provide a valid username and email.");
@@ -93,5 +93,66 @@ router.post("/", async (req, res) => {
 
   res.status(201).send("User registered successfully.");
 });
+
+
+
+router.post("/reset", async (req, res) => {
+  // Validate the user's input.
+  if (!req.body.username || !req.body.email) {
+    res.status(400).send("Please provide a valid username and email.");
+    return;
+  }
+
+  // Check if the username and email exist in the database.
+  const existingUser = await prisma.user.findFirst({
+    where: {
+      username: req.body.username,
+      email: req.body.email
+    },
+  });
+
+  if (!existingUser) {
+    res.status(404).send("User not found.");
+    return;
+  }
+
+  // Generate a new unique password.
+  const newPassword = crypto.randomBytes(3).toString("hex");
+
+  // Update the password in the database.
+  const hashedPassword = await bcrypt.hash(newPassword, 10); // Hash the new password with bcrypt
+
+  await prisma.user.update({
+    where: {
+      id: existingUser.id
+    },
+    data: {
+      password: hashedPassword
+    }
+  });
+
+  // Send an email with the new password to the user.
+  const transporter = nodemailer.createTransport({
+    host: "smtp.gmail.com",
+    port: 587,
+    secure: false,
+    auth: {
+      user: "pandeysuryodaya@gmail.com",
+      pass: "vgqdokjmkadutkah",
+    },
+  });
+  const user = req.body.username;
+  await transporter.sendMail({
+    from: "pandeysuryodaya@gmail.com",
+    to: req.body.email,
+    subject: "Your new password",
+    text: `Hello ${user}! Your new password is: ${newPassword}`,
+  });
+
+  res.status(200).send("Password reset successfully.");
+});
+
+
+
 
 module.exports = router;

@@ -50,7 +50,7 @@ const webHook = require('./routes/webhook');
 const commissionReq = require('./routes/commissionreq')
 
 // Use routes as middleware
-app.use('/generate-password', generatePasswordRoute);
+app.use('/', generatePasswordRoute);
 app.use('/login', loginRoute);
 app.use('/loan/types',loantypes);
 app.use('/loan/types' ,loanBanks);
