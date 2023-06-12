@@ -57,7 +57,7 @@ router.post("/", async (req, res) => {
             commissionRemaining:0, // Set the initial commission to 0
             amountLoan:0,
             loansIssued:0,
-            commissionPercentage:0
+            commissionPercentage:20
           },
         },
       },
