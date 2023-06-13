@@ -5,9 +5,9 @@ const verifyToken = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 
-router.get('/users/:userId/loans', verifyToken, async (req, res) => {
+router.get('/userinfo', verifyToken, async (req, res) => {
   try {
-    const { userId } = req.params;
+    const  userId  = req.userId;
 
     // Validate userId
     if (!userId) {
