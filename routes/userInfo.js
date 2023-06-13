@@ -24,7 +24,7 @@ router.get('/users/:userId/loans', verifyToken, async (req, res) => {
         id:true,
         username:true,
         email:true,
-
+        phoneNumber:true,
       }
     })
 

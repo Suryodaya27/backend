@@ -30,6 +30,7 @@
     "nodemailer": "^6.9.2",
     "nodemon": "^2.0.22",
     "prisma": "^4.14.1",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "v4": "^0.0.1"
   }
 }

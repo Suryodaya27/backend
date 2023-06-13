@@ -40,6 +40,7 @@ app.listen(port, () => {
 
 // Import routes
 const generatePasswordRoute = require('./routes/generatePassword');
+const generatepassotp = require('./routes/generatepassotp')
 const loginRoute = require('./routes/login');
 const loantypes = require('./routes/loanTypes');
 const loanBanks = require('./routes/loanBanks');
@@ -47,10 +48,12 @@ const loanInfo = require('./routes/loanInfo');
 const application = require('./routes/application');
 const userInfo = require('./routes/userInfo');
 const webHook = require('./routes/webhook');
-const commissionReq = require('./routes/commissionreq')
+const commissionReq = require('./routes/commissionreq');
+const adminRoutes = require('./routes/adminRoutes');
 
 // Use routes as middleware
-app.use('/', generatePasswordRoute);
+// app.use('/', generatePasswordRoute);
+app.use('/' , generatepassotp);
 app.use('/login', loginRoute);
 app.use('/loan/types',loantypes);
 app.use('/loan/types' ,loanBanks);
@@ -59,3 +62,4 @@ app.use('/loan/types' , application);
 app.use('/' , userInfo);
 app.use('/webhook' , webHook);
 app.use('/commissionreq' , commissionReq);
+app.use('/', adminRoutes);
