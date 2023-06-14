@@ -1,13 +1,15 @@
 const express = require('express');
 const nodemailer = require('nodemailer');
 const { PrismaClient } = require('@prisma/client');
+const verifyToken = require('../middlewares/authMiddleware');
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
 // POST /dsa
-router.post('/', async (req, res) => {
-  const { dsaId, requestedAmount } = req.body;
+router.post('/',verifyToken, async (req, res) => {
+  const { requestedAmount,ifsc,bankHolderName,bankName,bankAccountNumber,upi } = req.body;
+  const dsaId = req.userId;
   console.log(dsaId)
   try {
     const dsa = await prisma.dsa.findUnique({
@@ -38,12 +40,12 @@ router.post('/', async (req, res) => {
           pass: "vgqdokjmkadutkah",
         },
       });
-
+      //ifsc,bankHolderName,bankName,bankAccountNumber,upi
     const mailOptions = {
       from: 'pandeysuryodaya@gmail.com',
       to: 'pandeysuryodaya@gmail.com', // Replace with the finance department's email address
       subject: 'DSA Money Request',
-      text: `DSA ID: ${dsaId}\nRequested Amount: $${requestedAmount}`,
+      text: `DSA ID: ${dsaId}\nRequested Amount: Rs.${requestedAmount}\nBank Account Number:${bankAccountNumber} \nBank Holder Name: ${bankHolderName} \nBank name: ${bankName} \n IFSC code: ${ifsc} \n Upi Id: ${upi}`,
     };
 
     transporter.sendMail(mailOptions, (error, info) => {

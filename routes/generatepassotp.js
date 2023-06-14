@@ -2,7 +2,7 @@ const express = require('express');
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
-// const twilio = require("twilio");
+const twilio = require("twilio");
 const session = require("express-session");
 const { v4: uuidv4 } = require('uuid');
 
@@ -10,7 +10,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const router = express.Router();
-// const client = twilio(YOUR_TWILIO_ACCOUNT_SID, YOUR_TWILIO_AUTH_TOKEN);
+const client = twilio("ACdb0e6c88f5c2c48ca036c7a27164b762","1cb5045bda8233ef60c5ac1a9c691aa1");
 
 // Configure session middleware
 router.use(session({
@@ -54,13 +54,13 @@ router.post("/generate-password", async (req, res) => {
 
 
   //otp sending on users phone
-//   try {
-//     await sendOTP(req.body.phoneNumber, otp);
-//   } catch (error) {
-//     console.error("Error sending OTP:", error);
-//     res.status(500).send("Error sending OTP.");
-//     return;
-//   }
+  try {
+    await sendOTP(req.body.phoneNumber, otp);
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    res.status(500).send("Error sending OTP.");
+    return;
+  }
 
   // Generate a unique session ID for the user
   const sessionId = req.sessionID;
@@ -110,6 +110,8 @@ router.post("/verify-otp", async (req, res) => {
   let newUser;
 
   if (isAuthorized) {
+    // Send a notification to your company
+    await sendCompanyNotification(userData.username, newUser.id);
     newUser = await prisma.user.create({
       data: {
         username: userData.username,
@@ -188,13 +190,13 @@ function generateOTP() {
   return otp;
 }
 
-// async function sendOTP(phoneNumber, otp) {
-//   await client.messages.create({
-//     body: `Your OTP is ${otp}`,
-//     from: YOUR_TWILIO_PHONE_NUMBER,
-//     to: phoneNumber
-//   });
-// }
+async function sendOTP(phoneNumber, otp) {
+  await client.messages.create({
+    body: `Your OTP is ${otp}`,
+    from: '+14302336722',
+    to: phoneNumber
+  });
+}
 
 async function sendCompanyNotification(username, userId) {
     // Replace the following with your email service configuration
