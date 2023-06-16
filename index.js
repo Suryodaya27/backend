@@ -39,8 +39,8 @@ app.listen(port, () => {
 });
 
 // Import routes
-const generatePasswordRoute = require('./routes/generatePassword');
-const generatepassotp = require('./routes/generatepassotp')
+// const generatePasswordRoute = require('./routes/generatePassword');
+const generatepassotp = require('./routes/signup')
 const loginRoute = require('./routes/login');
 const loantypes = require('./routes/loanTypes');
 const loanBanks = require('./routes/loanBanks');

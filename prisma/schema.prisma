@@ -14,6 +14,10 @@ model User {
   password     String
   role         String
   phoneNumber  String        @unique
+  name         String
+  city         String
+  pincode      String
+  createdAt    DateTime      @default(now())
   applications Application[] @relation("userApplications")
   statuses     Status[]      @relation("userStatuses")
   dsa          Dsa[]         @relation("userDsa")
@@ -41,7 +45,7 @@ model Application {
   duration         Int
   loan             Loan     @relation(fields: [loanId], references: [id])
   userId           Int
-  createdAt        DateTime  @default(now())
+  createdAt        DateTime @default(now())
   user             User     @relation("userApplications", fields: [userId], references: [id])
   statuses         Status[]
 }
@@ -74,14 +78,14 @@ model Dsa {
   totalCommission      Float @default(0)
   commissionRemaining  Float @default(0)
   amountLoan           Float @default(0)
-  loansIssued          Int @default(0)
+  loansIssued          Int   @default(0)
   commissionPercentage Float @default(0.0)
   user                 User  @relation("userDsa", fields: [dsaId], references: [id])
 }
 
-// model Admin {
-//   adminId Int @id @unique @default(autoincrement())
-//   adminUsername String @unique
-//   adminEmail String @unique
-//   adminPassword String 
-// }
+model Admin {
+  adminId       Int    @id @unique @default(autoincrement())
+  adminUsername String @unique
+  adminEmail    String @unique
+  adminPassword String
+}

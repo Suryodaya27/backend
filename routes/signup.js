@@ -2,31 +2,23 @@ const express = require('express');
 const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
-// const twilio = require("twilio");
-const session = require("express-session");
+const twilio = require("twilio");
 const { v4: uuidv4 } = require('uuid');
 
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const router = express.Router();
-// const client = twilio("ACdb0e6c88f5c2c48ca036c7a27164b762","28010bb41af43aefb837a93cc7bd45f1");
-// const accountSid = 'ACdb0e6c88f5c2c48ca036c7a27164b762';
-// const authToken = '28010bb41af43aefb837a93cc7bd45f1';
-// const client = require('twilio')(accountSid, authToken);
+const accountSid = 'ACdb0e6c88f5c2c48ca036c7a27164b762';
+const authToken = '28010bb41af43aefb837a93cc7bd45f1';
+const client = require('twilio')(accountSid, authToken);
 
-// Configure session middleware
-router.use(session({
-  genid: (req) => uuidv4(), // Generate a unique session ID for each user
-  secret: "your-secret-key",
-  resave: false,
-  saveUninitialized: true,
-}));
+const cache = {};
 
 router.post("/generate-password", async (req, res) => {
   // Validate the user's input.
-  if (!req.body.username || !req.body.email || !req.body.phoneNumber  || !req.body.name || !req.body.city || !req.body.pincode) {
-    res.status(400).send("Please provide a valid Name, username, email, phone number, city and pincode .");
+  if (!req.body.username || !req.body.email || !req.body.phoneNumber || !req.body.name || !req.body.city || !req.body.pincode) {
+    res.status(400).send("Please provide a valid Name, username, email, phone number, city, and pincode.");
     return;
   }
 
@@ -55,51 +47,49 @@ router.post("/generate-password", async (req, res) => {
   // Generate and send the OTP to the provided phone number.
   const otp = generateOTP();
 
-
-  // //otp sending on users phone
-  // try {
-  //   await sendOTP(req.body.phoneNumber, otp);
-  // } catch (error) {
-  //   console.error("Error sending OTP:", error);
-  //   res.status(500).send("Error sending OTP.");
-  //   return;
-  // }
+  // OTP sending on the user's phone
+  try {
+    await sendOTP(req.body.phoneNumber, otp);
+  } catch (error) {
+    console.error("Error sending OTP:", error);
+    res.status(500).send("Error sending OTP.");
+    return;
+  }
 
   // Generate a unique session ID for the user
-  const sessionId = req.sessionID;
-  console.log(sessionId)
-  // Save the user details and the generated OTP in the session store.
-  req.sessionStore.set(sessionId, {
+  const sessionId = uuidv4();
+
+  // Save the user details and the generated OTP in the cache.
+  cache[sessionId] = {
     username: req.body.username,
     email: req.body.email,
     phoneNumber: req.body.phoneNumber,
+    name: req.body.name,
     isAuthorized: req.body.isAuthorized,
-    name:req.body.name,
-    city:req.body.city,
-    pincode:req.body.pincode,
-    password: null,
+    city: req.body.city,
+    pincode: req.body.pincode,
     otp: otp
-  });
+  };
 
-  // Send the session ID to the client
-  res.status(200).json({ sessionId: sessionId });
+  // Send the session ID and OTP to the client
+  res.status(200).json({ sessionId: sessionId, otp: otp });
 });
 
 router.post("/verify-otp", async (req, res) => {
-  // Retrieve the session ID from the request body.
+  // Retrieve the session ID and OTP from the request body.
   const sessionId = req.body.sessionId;
+  const otp = req.body.otp;
 
-  // Retrieve the user data from the session store using the session ID.
-  const userData = await getSessionData(req,sessionId);
-    console.log(userData)
+  // Retrieve the user data from the cache using the session ID.
+  const userData = cache[sessionId];
+
   if (!userData) {
     res.status(404).send("User not found.");
     return;
   }
-  console.log(req.body.otp);
-  console.log(userData.otp);
+
   // Validate the submitted OTP.
-  if (req.body.otp !== userData.otp) {
+  if (otp !== userData.otp) {
     res.status(401).send("Invalid OTP.");
     return;
   }
@@ -113,6 +103,7 @@ router.post("/verify-otp", async (req, res) => {
   // Save the password and user in the database.
   const isAuthorized = userData.isAuthorized;
 
+  // Perform other database operations...
   let newUser;
 
   if (isAuthorized) {
@@ -154,8 +145,8 @@ router.post("/verify-otp", async (req, res) => {
     });
   }
 
-  // Send an email with the unique password to the user.
-  const transporter = nodemailer.createTransport({
+   // Send an email with the unique password to the user.
+   const transporter = nodemailer.createTransport({
     host: "smtp.gmail.com",
     port: 587,
     secure: false,
@@ -177,44 +168,31 @@ router.post("/verify-otp", async (req, res) => {
   // Send a notification to your company
   await sendCompanyNotification(userData.username, newUser.id);
 
-  // Remove the session data from the session store.
-  await req.sessionStore.destroy(sessionId);
+  // Remove the user data from the cache after use.
+  delete cache[sessionId];
 
+  // Send the response or perform other actions... 
   res.status(201).send("User registered successfully.");
 });
-
-async function getSessionData(req, sessionId) {
-  try {
-    return new Promise((resolve, reject) => {
-      req.sessionStore.get(sessionId, (error, data) => {
-        if (error) {
-          reject(error);
-        } else {
-          resolve(data);
-        }
-      });
-    });
-  } catch (error) {
-    console.error("Error retrieving session data:", error);
-    throw error;
-  }
-}
-
 
 function generateOTP() {
   // Generate a 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString();
-  console.log(otp);
   return otp;
 }
 
-// async function sendOTP(phoneNumber, otp) {
-//   await client.messages.create({
-//     body: `Your OTP is ${otp}`,
-//     from: '+14302336722',
-//     to: phoneNumber
-//   });
-// }
+function sendOTP(phoneNumber, otp) {
+  return new Promise((resolve, reject) => {
+    client.messages
+      .create({
+        body: `Your OTP is: ${otp}`,
+        from: '+14302336722', // Replace with your Twilio phone number
+        to: phoneNumber,
+      })
+      .then(() => resolve())
+      .catch((error) => reject(error));
+  });
+}
 
 async function sendCompanyNotification(username, userId) {
     // Replace the following with your email service configuration
@@ -304,3 +282,4 @@ router.post("/reset", async (req, res) => {
 
 
 module.exports = router;
+
