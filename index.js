@@ -39,7 +39,6 @@ app.listen(port, () => {
 });
 
 // Import routes
-// const generatePasswordRoute = require('./routes/generatePassword');
 const generatepassotp = require('./routes/signup')
 const loginRoute = require('./routes/login');
 const loantypes = require('./routes/loanTypes');
@@ -52,7 +51,6 @@ const commissionReq = require('./routes/commissionreq');
 const adminRoutes = require('./routes/adminRoutes');
 
 // Use routes as middleware
-// app.use('/', generatePasswordRoute);
 app.use('/' , generatepassotp);
 app.use('/login', loginRoute);
 app.use('/loan/types',loantypes);

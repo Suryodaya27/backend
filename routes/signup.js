@@ -3,17 +3,20 @@ const crypto = require("crypto");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const twilio = require("twilio");
+const cache = require('memory-cache');
 const { v4: uuidv4 } = require('uuid');
 
 const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 const router = express.Router();
+// const cache = new NodeCache();
+
 const accountSid = 'ACdb0e6c88f5c2c48ca036c7a27164b762';
-const authToken = '28010bb41af43aefb837a93cc7bd45f1';
+const authToken = '9c8d9114d251b3d28af37b2b8a4580bd';
 const client = require('twilio')(accountSid, authToken);
 
-const cache = {};
+// const cache = {};
 
 router.post("/generate-password", async (req, res) => {
   // Validate the user's input.
@@ -60,17 +63,17 @@ router.post("/generate-password", async (req, res) => {
   const sessionId = uuidv4();
 
   // Save the user details and the generated OTP in the cache.
-  cache[sessionId] = {
+  cache.put(sessionId, {
     username: req.body.username,
     email: req.body.email,
     phoneNumber: req.body.phoneNumber,
-    name: req.body.name,
     isAuthorized: req.body.isAuthorized,
+    name: req.body.name,
     city: req.body.city,
     pincode: req.body.pincode,
+    password: null,
     otp: otp
-  };
-
+  });
   // Send the session ID and OTP to the client
   res.status(200).json({ sessionId: sessionId, otp: otp });
 });
@@ -81,7 +84,7 @@ router.post("/verify-otp", async (req, res) => {
   const otp = req.body.otp;
 
   // Retrieve the user data from the cache using the session ID.
-  const userData = cache[sessionId];
+  const userData = cache.get(sessionId);
 
   if (!userData) {
     res.status(404).send("User not found.");
@@ -168,8 +171,8 @@ router.post("/verify-otp", async (req, res) => {
   // Send a notification to your company
   await sendCompanyNotification(userData.username, newUser.id);
 
-  // Remove the user data from the cache after use.
-  delete cache[sessionId];
+  // Clear the data from the cache after use.
+  cache.del(sessionId);
 
   // Send the response or perform other actions... 
   res.status(201).send("User registered successfully.");
