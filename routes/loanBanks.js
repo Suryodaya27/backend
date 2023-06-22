@@ -16,7 +16,7 @@ router.get('/:typeId/banks', async (req, res) => {
       },
     });
     const transformedData = loans.map(item => ({
-      id:item.id,
+      id:item.bank.id,
       interest: item.interest,
       bankName: item.bank.bankName
     }));

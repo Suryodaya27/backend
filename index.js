@@ -50,6 +50,12 @@ const webHook = require('./routes/webhook');
 const commissionReq = require('./routes/commissionreq');
 const adminRoutes = require('./routes/adminRoutes');
 
+//webhooks
+const prefrWebhook = require('./routes/webhook/prefr-webhook');
+
+//banks urls
+const prefr = require('./routes/banks/bank1service')
+
 // Use routes as middleware
 app.use('/' , generatepassotp);
 app.use('/login', loginRoute);
@@ -58,6 +64,10 @@ app.use('/loan/types' ,loanBanks);
 app.use('/loan/types' ,loanInfo);
 app.use('/loan/types' , application);
 app.use('/' , userInfo);
-app.use('/webhook' , webHook);
+app.use('/finurl-webhook' , webHook);
 app.use('/commissionreq' , commissionReq);
 app.use('/', adminRoutes);
+app.use('/', prefr);
+
+
+app.use('/',prefrWebhook)

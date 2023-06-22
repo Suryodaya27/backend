@@ -29,12 +29,11 @@ describe('api requests', function(){
   })
 
   it('should submit a loan application', function (done) {
-    const typeId = '2';
-    const bankId = '3';
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjYsImlhdCI6MTY4NjIxNzM0Mn0.-aZD0hqY9HU-upi6bBxmCTBt6rPtkBOcKhUDhdj2Dgg';
+    const typeId = '1';
+    const bankId = '7';
+    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEyLCJpYXQiOjE2ODcxNjQ1ODgsImV4cCI6MTY4NzE2ODE4OH0.QX8cK1jDEE_hvARNVaOzbYcTfLL_w6mt9fUmkSzuFsM';
     const applicationData = {
       amount: 5000,
-      interestRate: 5,
       applicationName: "Surya",
       applicationGovId: "ABCD1234",
       duration: 12
@@ -55,12 +54,13 @@ describe('api requests', function(){
 
   it('web hook ', function (done) {
     const applicationData={
-      applicationId : 46,
-      status : "Approved"
+      applicationId : 5,
+      status : "Disbursed",
+      remark: "money will be credited in your account soon"
     }
     chai
       .request(app)
-      .post("/webhook")
+      .post("/finurl-webhook")
       .send(applicationData)
       .end((err, res) => {
         expect(err).to.be.null;

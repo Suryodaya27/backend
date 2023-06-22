@@ -42,12 +42,13 @@ model Application {
   applicationGovId String
   amount           Int
   loanId           Int
-  duration         Int
+  monthly_income   Int
   loan             Loan     @relation(fields: [loanId], references: [id])
   userId           Int
   createdAt        DateTime @default(now())
   user             User     @relation("userApplications", fields: [userId], references: [id])
   statuses         Status[]
+  prefr            Prefr[]
 }
 
 model Status {
@@ -74,7 +75,7 @@ model Bank {
 }
 
 model Dsa {
-  dsaId                Int   @id @unique
+  dsaId                Int   @id
   totalCommission      Float @default(0)
   commissionRemaining  Float @default(0)
   amountLoan           Float @default(0)
@@ -88,4 +89,10 @@ model Admin {
   adminUsername String @unique
   adminEmail    String @unique
   adminPassword String
+}
+
+model Prefr {
+  applicationId Int         @unique
+  loanId        String         @id
+  application   Application @relation(fields: [applicationId], references: [id])
 }
