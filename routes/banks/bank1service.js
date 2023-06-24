@@ -26,7 +26,10 @@ router.post("/submitLoanApplication/prefr", async (req, res) => {
       req.body;
 
     // Perform eligibility check based on your business rules
-    const isEligible = checkEligibility(monthly_income);
+    const eligibilityData = {
+      monthly_income , dob
+    };
+    const isEligible = checkEligibility(eligibilityData);
 
     // Check eligibility
     if (!isEligible) {
@@ -182,13 +185,19 @@ router.post("/submitLoanApplication/prefr", async (req, res) => {
 });
 
 function checkEligibility(data) {
-  // Implement your eligibility check logic here
-  // Return true if eligible, false otherwise
-  // You can access the relevant fields from the request body (data object)
+  const { dob, monthly_income } = data;
 
-  // Placeholder logic for illustration purposes
-  // Check if the loan amount is greater than 1000
-  return data > 20000;
+  // Calculate the age based on the date of birth
+  const birthDate = new Date(dob);
+  const today = new Date();
+  const age = today.getFullYear() - birthDate.getFullYear();
+
+  // Check if the age is greater than 18 and the monthly income is greater than 20000
+  if (age <= 18 || monthly_income <= 20000) {
+    return false;
+  }
+
+  return true;
 }
 
 module.exports = router;

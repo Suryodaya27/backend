@@ -91,7 +91,7 @@ router.post('/prefr-webhook', async (req, res) => {
     }
 
     // Return a standardized success response
-    res.status(200).json({ success: true, status: updatedStatus });
+    res.status(200).json({ success: true, status: updatedStatus , applicationId });
   } catch (error) {
     logger.error('Error updating application status:', error);
 
