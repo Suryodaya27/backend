@@ -12,7 +12,7 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 app.use(bodyParser.json());
-const port = 443;
+const port = 4000;
 app.use(cors());
 
 app.use(
