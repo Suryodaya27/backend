@@ -23,21 +23,24 @@ router.use(
 
 router.post('/', async (req, res) => {
   // Validate the user's input.
-  if (!req.body.username || !req.body.password) {
-    res.status(400).send('Please provide a valid username and password.');
+  if (!req.body.identifier || !req.body.password) {
+    res.status(400).send('Please provide a valid identifier and password.');
     return;
   }
 
   // Check if the user exists in the database.
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: {
-      username: req.body.username,
+      OR: [
+        { phoneNumber: req.body.identifier },
+        { email: req.body.identifier },
+      ],
     },
   });
 
   // If the user doesn't exist or the password is incorrect, return an error.
   if (!user || !(await bcrypt.compare(req.body.password, user.password))) {
-    res.status(401).send('Invalid username or password.');
+    res.status(401).send('Invalid credentials.');
     return;
   }
 
@@ -47,7 +50,6 @@ router.post('/', async (req, res) => {
 
   // Send the token as a response to the frontend
   res.status(200).json({ token: token });
-  // res.status(200).send("login sucessful");
 });
 
 module.exports = router;

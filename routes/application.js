@@ -111,7 +111,7 @@ router.post(
       // Dynamically route the request to the appropriate service based on typeId and bankId
       if (loan.id == 1) {
         // Route to Bank 1's API logic
-        url = "http://localhost:3001/submitLoanApplication/prefr";
+        url = "http://localhost:3001/api/submitLoanApplication/prefr";
         const bankResponse = await axios.post(url, jsonData, {
           headers: {
             "Content-Type": "application/json",

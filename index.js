@@ -57,17 +57,17 @@ const prefrWebhook = require('./routes/webhook/prefr-webhook');
 const prefr = require('./routes/banks/bank1service')
 
 // Use routes as middleware
-app.use('/' , generatepassotp);
-app.use('/login', loginRoute);
-app.use('/loan/types',loantypes);
-app.use('/loan/types' ,loanBanks);
-app.use('/loan/types' ,loanInfo);
-app.use('/loan/types' , application);
-app.use('/' , userInfo);
-app.use('/finurl-webhook' , webHook);
-app.use('/commissionreq' , commissionReq);
-app.use('/', adminRoutes);
-app.use('/', prefr);
+app.use('/api/' , generatepassotp);
+app.use('/api/login', loginRoute);
+app.use('/api/loan/types',loantypes);
+app.use('/api/loan/types' ,loanBanks);
+app.use('/api/loan/types' ,loanInfo);
+app.use('/api/loan/types' , application);
+app.use('/api/' , userInfo);
+app.use('/api/finurl-webhook' , webHook);
+app.use('/api/commissionreq' , commissionReq);
+app.use('/api/', adminRoutes);
+app.use('/api/', prefr);
 
 
 app.use('/',prefrWebhook)
